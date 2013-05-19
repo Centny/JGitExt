@@ -39,6 +39,7 @@ public class JGitExtTest {
 			System.out.println(rc.getFullMessage());
 		}
 
+		
 	}
 
 	@Test
