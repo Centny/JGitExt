@@ -1,6 +1,4 @@
 
 .DS_Store
-
-Test/Data/*
-Test/Tmp/*
+Test
 bin
