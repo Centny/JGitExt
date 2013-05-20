@@ -4,20 +4,29 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.MergeResult.MergeStatus;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.transport.FetchResult;
 
 public class JGitExt {
 	public static Git clone(File dir, String uri)
@@ -77,5 +86,52 @@ public class JGitExt {
 			}
 		}
 		return dst;
+	}
+
+	public static MergeResult mergeRemote(Git git, String name)
+			throws InvalidRemoteException, TransportException, GitAPIException,
+			IOException {
+		FetchResult fres = git.fetch().setRemote(name).call();
+		System.out.println(fres.getMessages());
+		MergeResult mres;
+		Ref rref = git.getRepository().getRef(
+				"refs/remotes/" + name + "/master");
+		mres = git.merge().include(rref).call();
+		if (mres.getMergeStatus().equals(MergeStatus.CONFLICTING)) {
+			storeConflict(git.getRepository(), mres.getConflicts());
+		}
+		return mres;
+	}
+
+	public static void storeConflict(Repository repo,
+			Map<String, int[][]> conflict) throws FileNotFoundException,
+			IOException {
+		File cfile = new File(repo.getDirectory(), "conflict");
+		ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(
+				cfile));
+		os.writeObject(conflict);
+		os.close();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Map<String, int[][]> loadConflict(Repository repo) {
+		ObjectInputStream is = null;
+		try {
+			File cfile = new File(repo.getDirectory(), "conflict");
+			is = new ObjectInputStream(new FileInputStream(cfile));
+			Object obj = is.readObject();
+			if (obj instanceof Map<?, ?>) {
+				return (Map<String, int[][]>) obj;
+			} else {
+				return null;
+			}
+		} catch (Exception e) {
+			return null;
+		} finally {
+			try {
+				is.close();
+			} catch (IOException e) {
+			}
+		}
 	}
 }

@@ -11,7 +11,6 @@ import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.FetchResult;
 import org.junit.Test;
 
 public class JGitExtTest {
@@ -39,7 +38,6 @@ public class JGitExtTest {
 			System.out.println(rc.getFullMessage());
 		}
 
-		
 	}
 
 	@Test
@@ -51,14 +49,9 @@ public class JGitExtTest {
 	@Test
 	public void testMerge() throws Exception {
 		Git git = Git.open(new File("./Test/Tmp/jgd2"));
-		FetchResult fres = git.fetch().setRemote("am").call();
-		System.out.println(fres.getMessages());
-		MergeResult mres = git.merge()
-				.include(git.getRepository().getRef("refs/remotes/am/master"))
-				.call();
-		System.out.println(mres.getMergeStatus());
+		MergeResult mres = JGitExt.mergeRemote(git, "am");
 		// System.out.println(mres.getConflicts());
-		Map<String, int[][]> cfs = mres.getConflicts();
+		Map<String, int[][]> cfs = JGitExt.loadConflict(git.getRepository());
 		if (cfs != null) {
 			for (String key : cfs.keySet()) {
 				int[][] c = cfs.get(key);
@@ -101,4 +94,10 @@ public class JGitExtTest {
 	// Git git = Git.open(new File("./Test/Tmp/jgd2"));
 	// git.rebase().runInteractively(handler)
 	// }
+
+	@Test
+	public void testPull() throws Exception {
+//		Git git = Git.open(new File("./Test/Tmp/jgd2"));
+		
+	}
 }
