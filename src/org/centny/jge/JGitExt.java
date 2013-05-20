@@ -134,4 +134,29 @@ public class JGitExt {
 			}
 		}
 	}
+
+	public static Boolean isConflicted(Repository db) {
+		Map<String, int[][]> c = loadConflict(db);
+		if (c == null || c.isEmpty()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	public static Boolean isExported(Repository db) {
+		return new File(db.getDirectory(), "git-daemon-export-ok").exists();
+	}
+
+	public static Boolean markExport(Repository db) throws IOException {
+		if (isExported(db)) {
+			return true;
+		}
+		return new File(db.getDirectory(), "git-daemon-export-ok")
+				.createNewFile();
+	}
+
+	public static Boolean markUnexport(Repository db) {
+		return new File(db.getDirectory(), "git-daemon-export-ok").delete();
+	}
 }
