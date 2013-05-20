@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 import org.centny.jge.JGitExt;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -97,7 +98,10 @@ public class JGitExtTest {
 
 	@Test
 	public void testPull() throws Exception {
-//		Git git = Git.open(new File("./Test/Tmp/jgd2"));
-		
+		Git git = Git.open(new File("./Test/Tmp/jgd"));
+		PullResult pres = git.pull().call();
+		System.out.println(pres.getFetchResult().getAdvertisedRefs());
+		System.out.println(pres.getMergeResult().getMergeStatus());
+
 	}
 }

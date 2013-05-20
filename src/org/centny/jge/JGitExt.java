@@ -74,7 +74,7 @@ public class JGitExt {
 		BufferedWriter writer = new BufferedWriter(os);
 		writer.append("[remote \"" + name + "\"]\n");
 		writer.append("\turl = " + remote + "\n");
-		writer.append("\tfetch = +refs/heads/*:refs/remotes/am/*\n");
+		writer.append("\tfetch = +refs/heads/*:refs/remotes/" + name + "/*\n");
 		writer.close();
 	}
 
@@ -129,7 +129,9 @@ public class JGitExt {
 			return null;
 		} finally {
 			try {
-				is.close();
+				if (is != null) {
+					is.close();
+				}
 			} catch (IOException e) {
 			}
 		}
