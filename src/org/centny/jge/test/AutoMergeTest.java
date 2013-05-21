@@ -1,6 +1,7 @@
 package org.centny.jge.test;
 
 import java.io.File;
+import java.io.IOException;
 
 import junit.framework.Assert;
 
@@ -43,7 +44,7 @@ public class AutoMergeTest {
 	}
 
 	@Test
-	public void testConflict() {
+	public void testConflict() throws IOException {
 		File wsdir = new File("./Test/Tmp/amjgd");
 		AutoMerge am = new AutoMerge(wsdir);
 		Assert.assertTrue(am.isConflict());

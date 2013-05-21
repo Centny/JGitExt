@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.security.InvalidParameterException;
 
-import junit.framework.Assert;
-
 import org.centny.jge.JGitExt;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeResult;
@@ -22,19 +20,29 @@ import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.api.errors.UnmergedPathsException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
+import org.eclipse.jgit.errors.AmbiguousObjectException;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.RevisionSyntaxException;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 public class AutoMerge {
 	private File wsDir;
 	// private Properties cfg;
 	private Git local, remote;
 
-	public AutoMerge(File wsDir) {
+	public AutoMerge(File wsDir) throws IOException {
 		this.wsDir = wsDir;
 		if (this.wsDir.exists()) {
-			Assert.assertTrue(this.wsDir.isDirectory());
+			JGitExt.assertTrue(this.wsDir.isDirectory());
 		} else {
-			Assert.assertTrue(this.wsDir.mkdirs());
+			JGitExt.assertTrue(this.wsDir.mkdirs());
 		}
+		File mark = new File(this.wsDir, ".amerge");
+		if (!mark.exists()) {
+			mark.createNewFile();
+		}
+		this.getLocal();
+		this.getRemote();
 		// this.cfg = new Properties();
 		// try {
 		// this.cfg.load(new FileInputStream(new File(this.wsDir,
@@ -77,7 +85,7 @@ public class AutoMerge {
 			throws InvalidRemoteException, TransportException, GitAPIException {
 		File ldir = new File(this.wsDir, "local");
 		if (ldir.exists()) {
-			Assert.assertTrue(ldir.delete());
+			JGitExt.assertTrue(ldir.delete());
 		}
 		this.local = JGitExt.clone(ldir, uri, branch);
 		return this.local;
@@ -87,13 +95,13 @@ public class AutoMerge {
 			throws InvalidRemoteException, TransportException, GitAPIException {
 		File rdir = new File(this.wsDir, "remote");
 		if (rdir.exists()) {
-			Assert.assertTrue(rdir.delete());
+			JGitExt.assertTrue(rdir.delete());
 		}
 		this.remote = JGitExt.clone(rdir, uri, branch);
 		return this.remote;
 	}
 
-	public void initAMerge() throws Exception {
+	public void initAMerge() throws InvalidParameterException, IOException {
 		if (this.getLocal() == null || this.getRemote() == null) {
 			throw new InvalidParameterException(
 					"local or remote repository not inited");
@@ -152,6 +160,9 @@ public class AutoMerge {
 				|| mres.getMergeStatus().equals(MergeStatus.CHECKOUT_CONFLICT)) {
 			return "Conflicting...";
 		}
+		if (mres.getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
+			return "ALREADY_UP_TO_DATE";
+		}
 		this.localCPush("AMerge:ig AutoMergate....");
 		return "";
 	}
@@ -166,7 +177,34 @@ public class AutoMerge {
 				|| mres.getMergeStatus().equals(MergeStatus.CHECKOUT_CONFLICT)) {
 			return "Conflicting...";
 		}
+		if (mres.getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
+			return "ALREADY_UP_TO_DATE";
+		}
 		this.remoteCPush("AMerge:ig AutoMergate....");
 		return "";
+	}
+
+	public String checkLogAndL2R() throws RevisionSyntaxException,
+			AmbiguousObjectException, IncorrectObjectTypeException,
+			IOException, NoHeadException, GitAPIException {
+		this.local.pull().call();
+		RevCommit rc = this.local.log().all().call().iterator().next();
+		String msg = rc.getShortMessage();
+		// System.out.println("Msg:" + msg);
+		if (msg.matches("^AMerge\\:2r\\b*.*$")) {
+			String res = this.pullL2R();
+			if (res.isEmpty()) {
+				return this.pullR2L();
+			} else {
+				return res;
+			}
+		} else {
+			return "do nothing";
+		}
+	}
+
+	public static Boolean isWsDir(File wsdir) {
+		File mark = new File(wsdir, ".amerge");
+		return mark.exists();
 	}
 }

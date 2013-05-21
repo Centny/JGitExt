@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class JGitExt {
 	}
 
 	public static void addRemote(Repository repo, String name, String remote)
-			throws Exception {
+			throws InvalidParameterException, IOException {
 		File dir = repo.getDirectory();
 		File cfg = new File(dir, "config");
 		InputStreamReader is = new InputStreamReader(new FileInputStream(cfg),
@@ -64,7 +65,7 @@ public class JGitExt {
 			}
 			if (line.indexOf(name) > -1) {
 				reader.close();
-				throw new Exception("the remote name " + name
+				throw new InvalidParameterException("the remote name " + name
 						+ " is aleady added");
 			}
 		}
@@ -160,5 +161,11 @@ public class JGitExt {
 
 	public static Boolean markUnexport(Repository db) {
 		return new File(db.getDirectory(), "git-daemon-export-ok").delete();
+	}
+
+	public static void assertTrue(boolean bool) {
+		if (!bool) {
+			throw new RuntimeException("Assertion faild");
+		}
 	}
 }
