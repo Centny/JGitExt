@@ -1,6 +1,7 @@
 package org.centny.jge.test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
 
@@ -103,5 +105,16 @@ public class JGitExtTest {
 		System.out.println(pres.getFetchResult().getAdvertisedRefs());
 		System.out.println(pres.getMergeResult().getMergeStatus());
 
+	}
+
+	@Test
+	public void testCreate() {
+		try {
+			FileRepository frepo = new FileRepository("Test/Data/jgd3.git");
+			frepo.create();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
