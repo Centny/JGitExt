@@ -55,7 +55,7 @@ public class AutoMerge {
 		return wsDir;
 	}
 
-	public synchronized Git getLocal() {
+	public Git getLocal() {
 		try {
 			if (this.local == null) {
 				File ldir = new File(this.wsDir, "local");
@@ -68,7 +68,7 @@ public class AutoMerge {
 		return local;
 	}
 
-	public synchronized Git getRemote() {
+	public Git getRemote() {
 		try {
 			if (this.remote == null) {
 				File rdir = new File(this.wsDir, "remote");
@@ -81,7 +81,7 @@ public class AutoMerge {
 		return remote;
 	}
 
-	public synchronized Git cloneLocal(String uri, String branch)
+	public Git cloneLocal(String uri, String branch)
 			throws InvalidRemoteException, TransportException, GitAPIException {
 		File ldir = new File(this.wsDir, "local");
 		if (ldir.exists()) {
@@ -91,7 +91,7 @@ public class AutoMerge {
 		return this.local;
 	}
 
-	public synchronized Git cloneRemote(String uri, String branch)
+	public Git cloneRemote(String uri, String branch)
 			throws InvalidRemoteException, TransportException, GitAPIException {
 		File rdir = new File(this.wsDir, "remote");
 		if (rdir.exists()) {
@@ -101,8 +101,7 @@ public class AutoMerge {
 		return this.remote;
 	}
 
-	public synchronized void initAMerge() throws InvalidParameterException,
-			IOException {
+	public void initAMerge() throws InvalidParameterException, IOException {
 		if (this.getLocal() == null || this.getRemote() == null) {
 			throw new InvalidParameterException(
 					"local or remote repository not inited");
@@ -117,17 +116,17 @@ public class AutoMerge {
 		this.getRemote();
 	}
 
-	public synchronized MergeResult mergeL2R() throws InvalidRemoteException,
+	public MergeResult mergeL2R() throws InvalidRemoteException,
 			TransportException, GitAPIException, IOException {
 		return JGitExt.mergeRemote(this.remote, "amerge");
 	}
 
-	public synchronized MergeResult mergeR2L() throws InvalidRemoteException,
+	public MergeResult mergeR2L() throws InvalidRemoteException,
 			TransportException, GitAPIException, IOException {
 		return JGitExt.mergeRemote(this.local, "amerge");
 	}
 
-	public synchronized void localCPush(String msg) throws NoHeadException,
+	public void localCPush(String msg) throws NoHeadException,
 			NoMessageException, UnmergedPathsException,
 			ConcurrentRefUpdateException, WrongRepositoryStateException,
 			GitAPIException {
@@ -135,7 +134,7 @@ public class AutoMerge {
 		this.local.push().setPushAll().call();
 	}
 
-	public synchronized void remoteCPush(String msg) throws NoHeadException,
+	public void remoteCPush(String msg) throws NoHeadException,
 			NoMessageException, UnmergedPathsException,
 			ConcurrentRefUpdateException, WrongRepositoryStateException,
 			GitAPIException {
@@ -143,7 +142,7 @@ public class AutoMerge {
 		this.remote.push().setPushAll().call();
 	}
 
-	public synchronized Boolean isConflict() {
+	public Boolean isConflict() {
 		if (this.getLocal() == null || this.getRemote() == null) {
 			return false;
 		}
@@ -151,7 +150,7 @@ public class AutoMerge {
 				|| JGitExt.isConflicted(this.remote.getRepository());
 	}
 
-	public synchronized String pullR2L() throws WrongRepositoryStateException,
+	public String pullR2L() throws WrongRepositoryStateException,
 			InvalidConfigurationException, DetachedHeadException,
 			InvalidRemoteException, CanceledException, RefNotFoundException,
 			NoHeadException, TransportException, GitAPIException, IOException {
@@ -168,7 +167,7 @@ public class AutoMerge {
 		return "";
 	}
 
-	public synchronized String pullL2R() throws WrongRepositoryStateException,
+	public String pullL2R() throws WrongRepositoryStateException,
 			InvalidConfigurationException, DetachedHeadException,
 			InvalidRemoteException, CanceledException, RefNotFoundException,
 			NoHeadException, TransportException, GitAPIException, IOException {
@@ -185,7 +184,7 @@ public class AutoMerge {
 		return "";
 	}
 
-	public synchronized String checkLogAndL2R() throws RevisionSyntaxException,
+	public String checkLogAndL2R() throws RevisionSyntaxException,
 			AmbiguousObjectException, IncorrectObjectTypeException,
 			IOException, NoHeadException, GitAPIException {
 		this.local.pull().call();

@@ -10,6 +10,9 @@ import org.centny.jge.JGitExt;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.PullResult;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
@@ -116,5 +119,12 @@ public class JGitExtTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Test
+	public void testLocalClone() throws InvalidRemoteException,
+			TransportException, GitAPIException {
+		JGitExt.clone(new File("Test/Tmp/www"),
+				"http://admin:j4a@localhost:8080/g/www.git");
 	}
 }
