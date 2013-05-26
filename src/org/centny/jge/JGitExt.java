@@ -163,6 +163,163 @@ public class JGitExt {
 		return new File(db.getDirectory(), "git-daemon-export-ok").delete();
 	}
 
+	public static boolean authRepository(Repository db, String tname,
+			boolean t4role, boolean isAdd) {
+		if (isAdd && isAuthorizedOk(db, tname, t4role)) {
+			return true;
+		}
+		File auth = new File(db.getDirectory(), ".authorized");
+		if (!auth.exists() && !isAdd) {
+			return false;
+		}
+		FileInputStream is = null;
+		BufferedReader reader = null;
+		StringBuffer sbuf = new StringBuffer();
+		boolean isApped = false;
+		try {
+			is = new FileInputStream(auth);
+			reader = new BufferedReader(new InputStreamReader(is));
+			String line = null;
+			boolean isRole = false;
+			while ((line = reader.readLine()) != null) {
+				line = line.trim();
+				if (line.isEmpty()) {
+					continue;
+				}
+				if (line.equals("[role]")) {
+					isRole = true;
+					sbuf.append(line + "\n");
+					continue;
+				} else if (line.equals("[user]")) {
+					isRole = false;
+					sbuf.append(line + "\n");
+					continue;
+				}
+				if (isAdd) {
+					sbuf.append(line);
+					if (isApped) {
+						continue;
+					}
+					if ((isRole && t4role) || (!isRole && !t4role)) {
+						sbuf.append(tname + "\n");
+						isApped = true;
+					}
+				} else {
+					if ((isRole && t4role) || (!isRole && !t4role)) {
+						if (line.equals(tname)) {
+							continue;
+						} else {
+							sbuf.append(line + "\n");
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+		} finally {
+			try {
+				if (is != null) {
+					is.close();
+				}
+			} catch (Exception e) {
+			}
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+			} catch (Exception e) {
+			}
+		}
+		if (!isApped && isAdd) {
+			if (t4role) {
+				sbuf.append("[role]\n");
+			} else {
+				sbuf.append("[user]\n");
+			}
+			sbuf.append(tname + "\n");
+		}
+		FileOutputStream os = null;
+		BufferedWriter writer = null;
+		try {
+			os = new FileOutputStream(auth);
+			writer = new BufferedWriter(new OutputStreamWriter(os));
+			writer.write(sbuf.toString());
+			writer.flush();
+			return true;
+		} catch (Exception e) {
+			return false;
+		} finally {
+			try {
+				if (os != null) {
+					os.close();
+				}
+			} catch (Exception e) {
+			}
+			try {
+				if (writer != null) {
+					writer.close();
+				}
+			} catch (Exception e) {
+			}
+		}
+	}
+
+	public static boolean isAuthorizedOk(Repository db, String tname,
+			boolean c4role) {
+		File auth = new File(db.getDirectory(), ".authorized");
+		if (!auth.exists()) {
+			return false;
+		}
+		FileInputStream is = null;
+		BufferedReader reader = null;
+		try {
+			is = new FileInputStream(auth);
+			reader = new BufferedReader(new InputStreamReader(is));
+			String line = null;
+			boolean isRole = false;
+			while ((line = reader.readLine()) != null) {
+				line = line.trim();
+				if (line.isEmpty()) {
+					continue;
+				}
+				if (line.equals("[role]")) {
+					isRole = true;
+					continue;
+				} else if (line.equals("[user]")) {
+					isRole = false;
+					continue;
+				}
+				if (isRole && c4role) {
+					if (line.equals(tname)) {
+						return true;
+					} else {
+						continue;
+					}
+				} else {
+					if (line.equals(tname)) {
+						return true;
+					} else {
+						continue;
+					}
+				}
+			}
+		} catch (Exception e) {
+		} finally {
+			try {
+				if (is != null) {
+					is.close();
+				}
+			} catch (Exception e) {
+			}
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+			} catch (Exception e) {
+			}
+		}
+		return false;
+	}
+
 	public static void assertTrue(boolean bool) {
 		if (!bool) {
 			throw new RuntimeException("Assertion faild");
