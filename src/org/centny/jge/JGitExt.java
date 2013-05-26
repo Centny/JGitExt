@@ -60,7 +60,7 @@ public class JGitExt {
 		BufferedReader reader = new BufferedReader(is);
 		String line;
 		while ((line = reader.readLine()) != null) {
-			if (!line.trim().matches("\\[\\b*remote\\b*.*\\]")) {
+			if (!line.trim().matches("\\[\\s*remote\\s*.*\\]")) {
 				continue;
 			}
 			if (line.indexOf(name) > -1) {
