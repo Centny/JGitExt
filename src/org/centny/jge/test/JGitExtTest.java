@@ -127,4 +127,11 @@ public class JGitExtTest {
 		JGitExt.clone(new File("Test/Tmp/www"),
 				"http://admin:j4a@localhost:8080/g/www.git");
 	}
+
+	@Test
+	public void testCreateByUri() throws Exception {
+		String fpath = "file://" + new File("./").getAbsolutePath()
+				+ "/Test/Data/jgd2.git";
+		JGitExt.createRepository(new File("/tmp/t.git"), fpath, "master");
+	}
 }

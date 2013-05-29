@@ -191,7 +191,7 @@ public class AutoMerge {
 		RevCommit rc = this.local.log().all().call().iterator().next();
 		String msg = rc.getShortMessage();
 		// System.out.println("Msg:" + msg);
-		if (msg.matches("^AMerge\\:2r\\b*.*$")) {
+		if (msg.matches("^AMerge\\:2r\\s*.*$")) {
 			String res = this.pullL2R();
 			if (res.isEmpty()) {
 				return this.pullR2L();

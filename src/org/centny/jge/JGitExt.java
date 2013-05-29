@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeResult;
@@ -324,5 +325,25 @@ public class JGitExt {
 		if (!bool) {
 			throw new RuntimeException("Assertion faild");
 		}
+	}
+
+	public static String createRepository(File dir, String uri, String branch)
+			throws Exception {
+		File tmp = new File(dir, "tmp");
+		tmp.mkdirs();
+		try {
+			JGitExt.clone(tmp, uri, branch);
+			File git = new File(tmp, ".git");
+			FileUtils.copyDirectory(git, dir);
+			return "Ok";
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			try {
+				FileUtils.deleteDirectory(tmp);
+			} catch (IOException e) {
+			}
+		}
+
 	}
 }
