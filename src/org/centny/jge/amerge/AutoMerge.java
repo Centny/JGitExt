@@ -158,7 +158,7 @@ public class AutoMerge {
 		MergeResult mres = this.mergeR2L();
 		if (mres.getMergeStatus().equals(MergeStatus.CONFLICTING)
 				|| mres.getMergeStatus().equals(MergeStatus.CHECKOUT_CONFLICT)) {
-			return "Conflicting...";
+			return "Conflicting";
 		}
 		if (mres.getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
 			return "ALREADY_UP_TO_DATE";
@@ -175,7 +175,7 @@ public class AutoMerge {
 		MergeResult mres = this.mergeL2R();
 		if (mres.getMergeStatus().equals(MergeStatus.CONFLICTING)
 				|| mres.getMergeStatus().equals(MergeStatus.CHECKOUT_CONFLICT)) {
-			return "Conflicting...";
+			return "Conflicting";
 		}
 		if (mres.getMergeStatus().equals(MergeStatus.ALREADY_UP_TO_DATE)) {
 			return "ALREADY_UP_TO_DATE";
